@@ -1,0 +1,34 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: reviews
+spec:
+  hosts:
+    - reviews
+  http:
+
+  # El usuario redhat verá reviews v2 (estrellas negras)
+  - match:
+    - headers:
+        end-user:
+          exact: redhat
+    route:
+    - destination:
+        host: reviews
+        subset: v2
+
+  # Desde un iPhone veremos reviews v3 (estrellas rojas)
+  - match:
+    - headers:
+        user-agent:
+          regex: .*iPhone.*
+    route:
+    - destination:
+        host: reviews
+        subset: v3 
+
+  #Si no cumple las anteriores, verá reviews v1 (sin estrellas)
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
