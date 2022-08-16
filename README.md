@@ -49,7 +49,7 @@ IMPORTANTE: En el primero reemplazamos la "N" con el grupo asignado.
 echo "export PROJECT=workshop-mesh-apps-N" >> $HOME/.bashrc
 source $HOME/.bashrc
 mkdir ~/workshop-mesh && cd "$_"
-git clone https://github.com/arielcarralbal/workshop-service-mesh
+git clone https://github.com/arielcarralbal/workshop-rh-service-mesh-2
 cd workshop-service-mesh
 ```
 Luego de clonar este repositorio, iniciamos sesión en OpenShift.
@@ -140,7 +140,7 @@ spec:
 
 Por último creamos el Gateway y VirtualService con el yaml recién editado:
 ```sh
-oc create -f bookinfo/networking/bookinfo-gateway.yaml -n $PROJECT
+ oc apply -f bookinfo/Gateway-VirtualService.yaml  -n $PROJECT
 ```
 Con la creación del Gateway, OpenShift crea la ruta (Route) automáticamente.
 Veamos cómo quedó todo en OpenShift y accedamos a la app.
