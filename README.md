@@ -201,8 +201,8 @@ oc apply -f bookinfo/networking/virtual-service-reviews-90-10.yaml -n $PROJECT
 ## Inyectar una demora
 
 ```sh
-oc apply -f samples/bookinfo/networking/virtual-service-all-v1.yaml -n $PROJECT && \
-oc apply -f samples/bookinfo/networking/virtual-service-reviews-test-v2.yaml -n $PROJECT && \
+oc apply -f bookinfo/networking/virtual-service-all-v1.yaml -n $PROJECT && \
+oc apply -f bookinfo/networking/virtual-service-reviews-test-v2.yaml -n $PROJECT && \
 oc apply -f bookinfo/networking/virtual-service-ratings-test-delay.yaml -n $PROJECT
 ```
 El usuario "redhat" debería experimentar una demora de 7 segundos; sin embargo, hay tiempos de espera (timeout) codificados en los microservicios que han provocado que el servicio reviews falle.
