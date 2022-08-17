@@ -26,19 +26,20 @@ Hay tres versiones del microservicio de reseñas:
 
 ### 1. Prerequisitos
 
-Debemos tener instalados los siguientes operadores en OpenShift:
+Debemos tener instalados los siguientes operadores en OpenShift (ya fueron instalados en el cluster para de Workshop):
 
 - OpenShift Elasticsearch
 - Jaeger
 - Kiali
 - Red Hat OpenShift Service Mesh
 
-Debemos contar con los siguientes comandos:
+Debemos contar con los siguientes comandos (Opcional):
 
 - git ([Descargar aquí](https://git-scm.com/downloads "Descargar git"))
 - oc ([Descargar aquí](https://access.redhat.com/downloads/content/290/ver=4.10/rhel---8/4.10.10/x86_64/product-software "Descargar oc"))
-- Visual Studio Code (Recomendado) (https://code.visualstudio.com/download "Descargar Visual Studio Code")
+- Visual Studio Code (Recomendado) ([Descargar aquí](https://code.visualstudio.com/download "Descargar VS Code"))
 
+Si no cuentan con ellos o no los pueden instalar, al ingresar al clustes podrás ver un namespace llamado dev-toolbox-N; en este namespace podrán acceder a una terminal desde Workloads > Pods, e ingresando al único pod listado hacer click en la solapa Terminal.
 
 ### 2. Deploy de microservicios
 
@@ -89,7 +90,7 @@ source $HOME/.bashrc
 echo $GATEWAY_URL
 ```
 Editamos el archivo 
-**istio/Gateway-VirtualService.yaml** y en *host* reemplazamos "N" con el grupo asignado.
+**bookinfo/Gateway-VirtualService.yaml** y en *host* reemplazamos "N" con el grupo asignado.
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
