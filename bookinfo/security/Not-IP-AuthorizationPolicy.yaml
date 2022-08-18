@@ -1,0 +1,14 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+ name: mesh-ip-deny
+ namespace: workshop-mesh-apps-N # Editar N
+spec:
+  selector:
+    matchLabels:
+      app: productpage
+  action: DENY
+  rules:
+  - from:
+    - source:
+       ipBlocks: ["1.2.3.4", "5.6.7.0/24", "172.30.179.47"] # Editar la última IP por la tuya

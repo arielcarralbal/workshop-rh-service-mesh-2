@@ -328,3 +328,93 @@ Finalmente volvemos todo a v1.
 oc apply -f bookinfo/networking/virtual-service-all-v1.yaml -n $PROJECT && \
 oc apply -f bookinfo/networking/virtual-service-reviews-test-v2.yaml -n $PROJECT
 ```
+
+
+# Observabilidad 
+
+Volvemos al estado inicial.
+```sh
+oc apply -f bookinfo/networking/destination-rule-all.yaml -n $PROJECT && \
+oc delete -f bookinfo/networking/virtual-service-all-v1.yaml -n $PROJECT 
+```
+
+Vamos a generar tráfico constante en nuestra aplicación para poder observarlo.
+request.sh recibe como parámetro la cantidad de solicitudes que se harán, en este caso realizaremos unas 120.
+Como respuesta de cada solicitud veremos el código de estado de respuesta HTTP (200 OK).
+
+```sh
+chmod +x scripts/request.sh
+scripts/request.sh 200
+```
+
+Veamos Kiali, Jaeger, Prometheus y Grafana.
+
+# Seguridad
+
+## PeerAuthentication
+
+Actualmente, toda la Service Mesh tiene mTLS habilitada para la comunicación entre servicios.
+Editemos el archivo security/Namespace-PeerAuthentication.yaml (Editando N por el número de equipo).
+
+En la vista Overview de Kiali podemos ver que el candado de nuestro namespace está de color negro, indicando que tiene mTLS habilitado (heredado de la Service Mesh). 
+
+```sh
+oc apply -f bookinfo/security/Namespace-PeerAuthentication.yaml -n $PROJECT 
+```
+
+Con la PeerAuthentication hemos especificado que nuestro namespace tendrá mTLs parcialmente habilitado. Verificamos en la vista Overview de Kiali, el candado se volverá blanco.
+
+El siguiente PeerAuthentication habilita mTLS estricto solamente a la app productpage, excepto en el puerto 8080 (Editemos N por el número de equipo).
+```sh
+oc apply -f bookinfo/security/Productpage-PeerAuthentication.yaml -n $PROJECT
+```
+
+Eliminemos estas PA desde Kiali y veamos cómo crearlas desde allí.
+
+## AuthorizationPolicy
+
+Podemos crearlas desde Kiali. En la vista Overview hacemos clic sobre los tres puntos verticales del namespace, y luego en "Create Trafic Policies".
+Verificamos que la aplicación funciona en el navegador. 
+
+Vamos a Kiali y en el menu lateral abrimos Istio Config y vemos que se creó una AP para cada versión y el namespace.
+Elegimos la AP del namespace (deny-all-workshop-mesh-apps-N) y reemplazamos:
+
+```yaml
+spec: {}
+```
+
+por:
+
+```yaml
+spec:
+  action: DENY
+  rules:
+  - {}
+```
+
+Verificamos que la aplicación en el navegador arroja "RBAC: access denied". Por último reemplazamos DENY por ALLOW y funcionará nuevamente con normalidad.
+
+### Restringir el acceso a servicios fuera de un namespace
+
+Reemplacemos la action y rules anteriores por la siguiente y veremos que la aplicación en el navegador arroja "RBAC: access denied" ya que el tráfico externo al namespace será rechazado.
+
+```yaml
+ action: DENY
+ rules:
+ - from:
+   - source:
+       notNamespaces: ["workshop-mesh-apps-N"] # Editar N
+```
+
+### Restringir el acceso entre servicios (ServiceAccount)
+
+Abrimos la AP de details-v1 y le agregamos al final: 
+
+```yaml
+  action: DENY
+```
+
+Verificamos que la sección "details" ya no se carga en la página.
+`CHALLENGE: ¡Probemos otros servicios!`
+
+Por último, eliminamos todas las AP desde la vista Overview de Kiali, hacemos clic sobre los tres puntos verticales del namespace, y luego en "Delete Policies".

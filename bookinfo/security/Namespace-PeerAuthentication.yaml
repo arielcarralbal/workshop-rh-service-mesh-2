@@ -1,0 +1,8 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: namespace-pa
+  namespace: workshop-mesh-apps-N # Editar N
+spec:
+  mtls:
+    mode: PERMISSIVE

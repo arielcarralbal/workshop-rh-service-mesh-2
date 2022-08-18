@@ -1,0 +1,11 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+ name: external-deny
+ namespace: workshop-mesh-apps-0 # Editar N
+spec:
+ action: DENY
+ rules:
+ - from:
+   - source:
+       notNamespaces: ["workshop-mesh-apps-0"] # Editar N
