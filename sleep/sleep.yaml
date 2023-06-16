@@ -1,0 +1,59 @@
+## Basado en https://istio.io/latest/docs/tasks/traffic-management/egress/egress-control/
+## oc apply -n workshop-mesh-apps-1 -f sleep/sleep.yaml
+## oc label -n workshop-mesh-apps-1 deployment/sleep app.openshift.io/runtime=other-linux --overwrite
+## oc get pod -n workshop-mesh-apps-1 -l app=sleep -o jsonpath={.items..metadata.name}
+## export SOURCE_POD=$(oc get pod -l app=sleep -o jsonpath={.items..metadata.name})
+## oc exec "$SOURCE_POD" -n workshop-mesh-apps-1 -c sleep -- curl -sI https://www.google.com | grep  "HTTP/"
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sleep
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sleep
+  labels:
+    app: sleep
+    service: sleep
+spec:
+  ports:
+  - port: 80
+    name: http
+  selector:
+    app: sleep
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sleep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sleep
+  template:
+    metadata:
+      labels:
+        app: sleep
+      annotations:
+          sidecar.istio.io/inject: "true"
+    spec:
+      terminationGracePeriodSeconds: 0
+      serviceAccountName: sleep
+      containers:
+      - name: sleep
+        image: curlimages/curl
+        command: ["/bin/sleep", "infinity"]
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - mountPath: /etc/sleep/tls
+          name: secret-volume
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: sleep-secret
+          optional: true
+---
+
